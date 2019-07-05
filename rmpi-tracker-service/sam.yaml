@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Rmpi Tracker Service API written with SpringBoot with the aws-serverless-java-container library
+
+Globals:
+  Api:
+    # API Gateway regional endpoints
+    EndpointConfiguration: REGIONAL
+
+Resources:
+  RmpiTrackerServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.chaungng.rmpitracker.service.StreamLambdaHandler::handleRequest
+      Runtime: java8
+      CodeUri: target/serverless-rmpi-tracker-service-1.0-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Policies: AWSLambdaFullAccess
+      Timeout: 60
+      Events:
+        Commodity:
+          Type: Api
+          Properties:
+            Path: /commodity
+            Method: any
+  CommodityTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: "commodity_table"
+      PrimaryKey:
+        Name: "Id"
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+Outputs:
+  RmpTrackerServiceApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/rmpi-tracker'
+    Export:
+      Name: RmpTrackerServiceApi

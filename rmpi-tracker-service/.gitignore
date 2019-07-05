@@ -1,6 +1,7 @@
 HELP.md
 .gradle
 build/
+target/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
@@ -30,3 +31,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### AWS
+output-sam.yaml
+gradle

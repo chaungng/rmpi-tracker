@@ -4,43 +4,32 @@ plugins {
 	id 'java'
 }
 
-apply plugin: 'io.spring.dependency-management'
-
-group = 'com.chaungng.rmpitracker'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
+apply plugin: 'java'
 
 repositories {
+	jcenter()
+	mavenLocal()
 	mavenCentral()
 }
 
-ext {
-	set('snippetsDir', file("build/generated-snippets"))
-}
-
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.data:spring-data-rest-hal-browser'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	compile (
+			'org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE',
+			'com.amazonaws.serverless:aws-serverless-java-container-spring:[1.0,)',
+			'io.symphonia:lambda-logging:1.0.1'
+	)
+	compileOnly('org.projectlombok:lombok:1.16.16')
+	testCompile("junit:junit:4.12")
 }
 
-test {
-	outputs.dir snippetsDir
+task buildZip(type: Zip) {
+	from compileJava
+	from processResources
+	into('lib') {
+		from(configurations.compileClasspath) {
+			exclude 'tomcat-embed-*'
+		}
+	}
 }
 
-asciidoctor {
-	inputs.dir snippetsDir
-	dependsOn test
-}
+build.dependsOn buildZip
